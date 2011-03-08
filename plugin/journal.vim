@@ -1,13 +1,12 @@
-" Filename:      journal.vim
-" Description:   Encrypted journal based on calendar.vim and gnupg.vim
-" Maintainer:    Jeremy Cantrell <jmcantrell@gmail.com>
-" Last Modified: Sun 2008-05-25 15:55:31 (-0400)
+" Filename:    journal.vim
+" Description: Encrypted journal based on calendar.vim and gnupg.vim
+" Maintainer:  Jeremy Cantrell <jmcantrell@gmail.com>
 
-if exists('loaded_journal')
+if exists('g:journal_loaded')
     finish
 endif
 
-let loaded_journal = 1
+let g:journal_loaded = 1
 
 let g:journal = []
 
@@ -15,15 +14,9 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 if !exists("g:journal_directory")
-    let g:journal_directory = '~/journal'
+    let g:journal_directory = '~/Journal'
 endif
 
-if !hasmapto('<Plug>JournalToggle')
-    nmap <silent> <unique> <leader>jj <Plug>JournalToggle
-endif
-
-nnoremap <unique> <script> <Plug>JournalToggle <SID>JournalToggle
-nnoremap <SID>JournalToggle :JournalToggle<cr>
 command -bar JournalToggle :call s:JournalToggle()
 
 function! s:SID() "{{{1
@@ -56,11 +49,12 @@ function! s:JournalOff() "{{{1
 endfunction
 
 function! s:FormatDate(year, month, day) "{{{1
-    return a:year.printf('%02s%02s', a:month, a:day)
+    return printf('%s-%02s-%02s', a:year, a:month, a:day)
 endfunction
 
 function! s:JournalFilename(year, month, day) "{{{1
-    return expand(g:journal_directory).'/'.s:FormatDate(a:year, a:month, a:day).'.asc'
+    let ext = exists('g:journal_encrypted') ? 'asc' : 'txt'
+    return expand(g:journal_directory).'/'.s:FormatDate(a:year, a:month, a:day).'.'.ext
 endfunction
 
 function! s:JournalCalendarAction(day, month, year, week, dir) "{{{1
@@ -101,6 +95,7 @@ endfunction
 function! s:Strip(str) "{{{1
     return substitute(substitute(a:str, '\s*$', '', 'g'), '^\s*', '', 'g')
 endfunction
+
 "}}}
 
 let &cpo = s:save_cpo
